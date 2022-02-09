@@ -14,36 +14,231 @@ library(dsbox)
 
 ```{r load-data, message = FALSE}
 states <- read_csv("data/states.csv")
+dn <- dennys
+lq <- laquinta
 ```
 
 ### Exercise 1
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r}
+dn_ak <- dn %>%
+  filter(state == "AK")
+nrow(dn_ak)
+```
+
 
 ### Exercise 2
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r}
+lq_ak <- lq %>%
+  filter(state == "AK")
+nrow(lq_ak)
+```
+### Exercise 2
+
+``` {r data-join}
+
+dn_lq_ak <- full_join(dn_ak, lq_ak, by = "state")
+dn_lq_ak
+```
+#There are 6 observations and 11 variables (address.x, city.x, state, zip.x, longitude.x, latitude.x, address.y, city.y, zip.y, langitude.y, latitude.y)
+
 
 ### Exercise 3
+```{r haversine}
 
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+```
 ...
 
 ### Exercise 4
-
+```{r distance-mutate}
+dn_lq_ak <- dn_lq_ak %>% 
+    mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+```
 ...
 
 ### Exercise 5
+```  {r closest-distance}
+dn_lq_ak_mindist <- dn_lq_ak %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
 
-...
+dn_lq_ak_mindist %>% 
+     summarize(closest)
+
+dn_lq_ak_mindist %>% 
+     summarize(mean(closest))
+```
 
 ### Exercise 6
-
+``` {r viz}
+dn_lq_ak_mindist %>% 
+            ggplot(mapping = aes(x = closest, 
+                                 y = address.x)) +
+            geom_col() + 
+            labs(
+              title = "Distance between Denny's and La Quinta", subtitle = "Alaska", 
+              x = "Distance to nearest La Quinta (km)", 
+              y = "Denny's location")
+```
 ...
 
-Add exercise headings as needed.
+
+### Exercise 6
+``` {r NC}
+
+#filter NC dennys
+dn_nc <- dn %>%
+  filter(state == "NC")
+
+#filter NC laquinta
+lq_nc <- lq %>%
+  filter(state == "NC")
+
+# Join data
+dn_lq_nc <- full_join(dn_nc, lq_nc, by = "state")
+dn_lq_nc
+
+# Mutate distance var
+dn_lq_nc <- dn_lq_nc %>% 
+    mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+
+# Min distance
+dn_lq_nc_mindist <- dn_lq_nc %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+dn_lq_nc_mindist %>% 
+     summarize(closest)
+
+dn_lq_nc_mindist %>% 
+     summarize(mean(closest))
+
+# Visualization
+
+dn_lq_nc_mindist %>% 
+            ggplot(mapping = aes(x = closest, 
+                                 y = address.x)) +
+            geom_col() + 
+            labs(
+              title = "Distance between Denny's and La Quinta", subtitle = "NC", 
+              x = "Distance to nearest La Quinta (km)", 
+              y = "Denny's location")
+
+dn_lq_nc_mindist %>% 
+               ggplot(mapping = aes(x = closest)) +
+               geom_histogram(binwidth = 5) + 
+            labs(
+              title = "Distance between Denny's and La Quinta", subtitle = "North Carolina", 
+              x = "Distance from Denny's to nearest La Quinta (km)", 
+              y = "Number of Denny's")
+```
+...
+
+### Exercise 7
+``` {r TX}
+
+#filter TX dennys
+dn_tx <- dn %>%
+  filter(state == "TX")
+
+#filter TX laquinta
+lq_tx <- lq %>%
+  filter(state == "TX")
+
+# Join data
+dn_lq_tx <- full_join(dn_tx, lq_tx, by = "state")
+dn_lq_tx
+
+# Mutate distance var
+dn_lq_tx <- dn_lq_tx %>% 
+    mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+
+# Min distance
+dn_lq_tx_mindist <- dn_lq_tx %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+dn_lq_tx_mindist %>% 
+     summarize(mean(closest))
+
+# Visualization
+
+dn_lq_tx_mindist %>% 
+               ggplot(mapping = aes(x = closest)) +
+               geom_histogram(binwidth = 5) + 
+            labs(
+              title = "Distance between Denny's and La Quinta", subtitle = "Texas", 
+              x = "Distance from Denny's to nearest La Quinta (km)", 
+              y = "Number of Denny's")
+```
+### Exercise 6
+``` {r GA}
+
+#filter GA dennys
+dn_ga <- dn %>%
+  filter(state == "GA")
+
+#filter GA laquinta
+lq_ga <- lq %>%
+  filter(state == "GA")
+
+# Join data
+dn_lq_ga <- full_join(dn_ga, lq_ga, by = "state")
+dn_lq_ga
+
+# Mutate distance var
+dn_lq_ga <- dn_lq_ga %>% 
+    mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+
+# Min distance
+dn_lq_ga_mindist <- dn_lq_ga %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+dn_lq_ga_mindist %>% 
+     summarize(mean(closest))
+
+# Visualization
+
+dn_lq_ga_mindist %>% 
+            ggplot(mapping = aes(x = closest, 
+                                 y = address.x)) +
+            geom_col() + 
+            labs(
+              title = "Distance between Denny's and La Quinta", subtitle = "Georgia", 
+              x = "Distance to nearest La Quinta (km)", 
+              y = "Denny's location")
+
+dn_lq_ga_mindist %>% 
+               ggplot(mapping = aes(x = closest)) +
+               geom_histogram(binwidth = 5) + 
+            labs(
+              title = "Distance between Denny's and La Quinta", subtitle = "Georgia", 
+              x = "Distance from Denny's to nearest La Quinta (km)", 
+              y = "Number of Denny's")
+
+dn_lq_ak_mindist %>% 
+    summarize(mean(closest))
+dn_lq_nc_mindist %>% 
+    summarize(mean(closest))
+dn_lq_tx_mindist %>% 
+    summarize(mean(closest))
+dn_lq_ga_mindist %>% 
+    summarize(mean(closest))
+```
+Hedberg's observation is probably most true for TX. Even though AK has a lower mean distance, there are so few observations that it probably shouldn't be considered.
